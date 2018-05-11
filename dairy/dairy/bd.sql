@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS dairy (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    task_name TEXT NOT NULL,
+    task_descr TEXT NOT NULL DEFAULT '',
+    time_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    time_plan DATETIME NOT NULL,
+    time_fact DATETIME,
+    status TEXT NOT NULL DEFAULT 'New'
+    )
