@@ -12,7 +12,7 @@ SQL_UPDATE_TASK_DESCR = '''
 '''
 
 SQL_FINISH_TASK = '''
-	UPDATE dairy SET time_fact=?, status='Done' WHERE id=?
+	UPDATE dairy SET time_fact=CURRENT_DATE, status='Done' WHERE id=?
 '''
 
 SQL_RETURN_TASK = '''
@@ -78,7 +78,7 @@ def add_task(conn, task_name, task_descr, time_plan):
 	with conn:
 		found = find_task_by_name(conn, task_name)
 		if found:
-			return found[2]
+			print('Задача с таким названием уже существует')
 		cursor = conn.execute(SQL_INSERT_TASK, (task_name, task_descr, time_plan))
 
 
@@ -88,55 +88,56 @@ def find_all(conn):
 		return cursor.fetchall()
 
 
-def find_task_by_id(conn, id):
+def find_task_by_id(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_ID, (id,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_ID, (field,))
 		return cursor.fetchone()
 
 
-def find_task_by_time_created(conn, time_created):
+
+def find_task_by_time_created(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_CREATED, (time_created,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_CREATED, (field,))
 		return cursor.fetchone()
 
 
-def find_task_by_name(conn, task_name):
+def find_task_by_name(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_NAME, (task_name,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_NAME, (field,))
 		return cursor.fetchone()
 
 
-def find_task_by_date_created(conn, time_plan):
+def find_task_by_time_plan(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_PLAN, (time_plan,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_PLAN, (field,))
 		return cursor.fetchall()
 
 
-def find_task_by_date_created(conn, time_fact):
+def find_task_by_date_created(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_FACT, (time_fact,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_TIME_FACT, (field,))
 		return cursor.fetchall()
 
 
-def find_task_by_status(conn, status):
+def find_task_by_status(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_SELECT_TASK_BY_STATUS, (status,))
+		cursor = conn.execute(SQL_SELECT_TASK_BY_STATUS, (field,))
 		return cursor.fetchall()
 
 
-def edit_status_done(conn, id):
+def edit_status_done(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_FINISH_TASK, (id,))
+		cursor = conn.execute(SQL_FINISH_TASK, (field,))
 
 
-def edit_status_return(conn, id):
+def edit_status_return(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_RETURN_TASK, (id,))
+		cursor = conn.execute(SQL_RETURN_TASK, (field,))
 
 
-def del_task(conn, id):
+def del_task(conn, field):
 	with conn:
-		cursor = conn.execute(SQL_DELETE_TASK, (id,))
+		cursor = conn.execute(SQL_DELETE_TASK, (field,))
 
 
 def del_done(conn):
@@ -149,6 +150,9 @@ def edit_descr(conn, id):
 		cursor = conn.execute(SQL_UPDATE_TASK_DESCR, (id,))
 
 
-def edit_time_plan(conn, id):
+def edit_time_plan(conn, new_time, field):
 	with conn:
-		cursor = conn.execute(SQL_UPDATE_TASK_PLAN_TIME, (id,))
+		cursor = conn.execute(SQL_UPDATE_TASK_PLAN_TIME, (new_time, field))
+		return cursor.fetchone()
+
+# python main.py

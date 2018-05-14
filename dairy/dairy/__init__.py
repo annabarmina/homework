@@ -6,9 +6,9 @@ from datetime import datetime
 get_connection = lambda: storage.connect('dairy.sqlite')
 
 def action_add():
-	task_name = input('\nВнесите новую задачу')
-	task_descr = input('\nВведите описание задачи')
-	time_plan = input('\nВведите плановую дату выполнения')
+	task_name = input('\nВнесите новую задачу: ')
+	task_descr = input('\nВведите описание задачи: ')
+	time_plan = input('\nВведите плановую дату выполнения (YYYY-MM-DD): ')
 	if task_name:
 		if time_plan:
 			with get_connection() as conn:
@@ -25,7 +25,7 @@ def action_find_all():
 	with get_connection() as conn:
 		tasks = storage.find_all(conn)
 
-	template = '{task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[id]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 	for task in tasks:
 	    print(template.format(task=task))
 
@@ -51,7 +51,7 @@ e. По фактическому времени завершения задач�
 	point = points.get(cmdf)
 	if point:
 		with get_connection() as conn:
-			storage.point()
+			point()
 	else:
 		print('Такого пункта нет в меню')
 
@@ -84,13 +84,15 @@ def action_edit_descr():
 
 
 def action_edit_time_plan():
+	field = input('\nВведите id задачи для изменения: ')
+	new_time = input('\nВведите новую плановую дату задачи: ')
 	with get_connection() as conn:
-		tasks = storage.edit_time_plan(conn, id)
-
-	template = '{task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+		tasks = storage.edit_time_plan(conn, new_time, field)
+'''
+	template = '{task[id]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 	for task in tasks:
-	    print(template.format(task=task))
-
+	    print(template.format(task=tasks))
+'''
 
 def main():
 	with get_connection() as conn:
@@ -120,24 +122,26 @@ def main():
 
 
 def action_status_done():
+	field = input('\nВведите id задачи для завершения: ')
 	with get_connection() as conn:
-		storage.edit_status_done(conn, id)
+		storage.edit_status_done(conn, field)
 
 
 def action_status_returned():
+	field = input('\nВведите id задачи для доработки: ')
 	with get_connection() as conn:
-		storage.edit_status_return(conn, id)
+		storage.edit_status_return(conn, field)
 
 def action_del():
 	cmdd = input('''
 a. Удалить 1 задачу
 b. Удалить все завершенные задачи
 
-Введите номер команды:
-		''')
+Введите номер команды на удаление: ''')
 	if cmdd == 'a':
+		field = input('\nВведите id задачи для удаления: ')
 		with get_connection() as conn:
-			storage.del_task(conn, id)
+			storage.del_task(conn, field)
 	elif cmdd == 'b':
 		with get_connection() as conn:
 			storage.del_done(conn)
@@ -168,11 +172,11 @@ q. Выйти
 
 
 def action_find_id():
-	field = input('\nВведите ID для поиска: ')
+	field = int(input('\nВведите ID для поиска: '))
 	with get_connection() as conn:
 		tasks = storage.find_task_by_id(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[id]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
@@ -183,7 +187,7 @@ def action_find_name():
 	with get_connection() as conn:
 		tasks = storage.find_task_by_name(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[id]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
@@ -194,29 +198,29 @@ def action_find_status():
 	with get_connection() as conn:
 		tasks = storage.find_task_by_status(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[id]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
 
-
+'''
 def action_find_created():
 	field = input('\nВведите дату внесения задачи в ежедневник для поиска: ')
 	with get_connection() as conn:
 		tasks = storage.find_task_by_time_created(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[ID]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
-
+'''
 
 def action_find_plan():
 	field = input('\nВведите плановую дату выполнения задачи для поиска: ')
 	with get_connection() as conn:
 		tasks = storage.find_task_by_time_plan(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[ID]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
@@ -227,7 +231,7 @@ def action_find_fact():
 	with get_connection() as conn:
 		tasks = storage.find_task_by_time_fact(conn, field)
 
-	template = '{task[ID]} - {task[task_name]} - {task[task_descr]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
+	template = '{task[ID]} - {task[task_name]} - {task[time_created]} - {task[time_plan]} - {task[time_fact]} - {task[status]}'
 
 	for task in tasks:
 	    print(template.format(task=task))
