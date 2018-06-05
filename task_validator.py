@@ -8,8 +8,8 @@ class ValidatorException(Exception):
 class Validator(metaclass=ABCMeta):
 	types = {}
 
-		@abstractmethod
-	def validate(value):
+	@abstractmethod
+	def validate(self, value):
 		pass
 
 	
@@ -18,7 +18,7 @@ class Validator(metaclass=ABCMeta):
 		klass = cls.types.get(name)
 		if klass is None:
 			raise ValidatorException('Validator with name "{}" not found'.format(name))
-		return klass
+		return klass()
 
 	@classmethod
 	def add_type(cls, name, klass):
@@ -40,8 +40,8 @@ class EMailValidator(Validator):
 
 class DateTimeValidator(Validator):
 	"""проверяет корректтность даты"""
-	def validate(self, datetime):
-		for datetime in ['%Y-%m-%d',
+	def validate(self, value):
+		for key in ['%Y-%m-%d',
 						'%Y-%m-%d %H:%M',
 						'%Y-%m-%d %H:%M:%S',
 						'%d.%m.%Y',
@@ -50,7 +50,17 @@ class DateTimeValidator(Validator):
 						'%d/%m/%Y',
 						'%d/%m/%Y %H:%M',
 						'%d/%m/%Y %H:%M:%S']:
-			return True
-		else:
-			return False
+			try:
+				if datetime.strptime(value, key):
+					return True
+			except:
+				pass
+		return False
 		
+Validator.add_type('email', EMailValidator)
+Validator.add_type('datetime', DateTimeValidator)	
+
+if __name__ == '__main__':
+	value = Validator.get_instance('datetime')
+	a = '10.12.1990'
+	print(a, value.validate(a))
