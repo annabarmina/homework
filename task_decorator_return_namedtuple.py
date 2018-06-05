@@ -10,10 +10,11 @@ def return_namedtuple(*cort):
 			return namedcort
 		return wrapper
 	return decorator
-
+'''
 @return_namedtuple('a', 'b', 'c')
 def func():
     return 'Python', 'is', 'programming language'
 
 r = func()
 print(r.c)
+'''
